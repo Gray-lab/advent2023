@@ -53,7 +53,12 @@ with open("input.txt") as f:
     for line in f.readlines():
         hand, bid = line.split()
         hands_bids.append((hand, int(bid)))
-hands_bids.sort(key = lambda x: (handScore(x[0]), cardScore(x[0][0]), cardScore(x[0][1]), cardScore(x[0][2]), cardScore(x[0][3]), cardScore(x[0][4])))
+hands_bids.sort(key = lambda x: (handScore(x[0]), 
+                                 cardScore(x[0][0]), 
+                                 cardScore(x[0][1]), 
+                                 cardScore(x[0][2]), 
+                                 cardScore(x[0][3]), 
+                                 cardScore(x[0][4])))
 for i, item in enumerate(hands_bids):
     total += item[1] * (i + 1)
 
