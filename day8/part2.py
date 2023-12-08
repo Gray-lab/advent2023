@@ -21,9 +21,9 @@ while not all(periods):
 
     direction = directions[step_count % len(directions)]
     if direction == "R":
-        cur_step = list(map(lambda step : graph[step][1], cur_step))
+        cur_step = list(map(lambda step: graph[step][1], cur_step))
     else:
-        cur_step = list(map(lambda step : graph[step][0], cur_step))
+        cur_step = list(map(lambda step: graph[step][0], cur_step))
     step_count += 1
 
 print(math.lcm(*periods))
