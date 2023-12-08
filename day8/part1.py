@@ -9,9 +9,6 @@ with open("input.txt") as f:
         locations = re.findall("\w+", line)
         graph[locations[0]] = (locations[1], locations[2])
 
-print(graph)
-print(directions)
-
 step = 0
 cur_step = "AAA"
 while True:
