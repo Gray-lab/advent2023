@@ -1,5 +1,5 @@
 from typing import List, Set
-import copy
+import copy, time
 
 # other than the start, any pipe has only two valid neighbors. All others can be ignored
 connections = {"-": [(0,1), (0,-1)], 
@@ -34,10 +34,9 @@ def main():
         cur_idx = new_idx
         path.append(cur_idx)
 
-    get_path_only(path, pipes)
-    print_pipes(pipes)
-    
+    get_path_only(path, pipes)   
     print(len(path) / 2)
+
     # for part 2, expand the map by filling in blank rows and columns between every row and column
     # if connections exist across the rows and columns, those elements would be added to the path set
     # do a fill from the outside in
@@ -45,33 +44,73 @@ def main():
     # insides = total - path elements - outsides  
     new_map = get_path_only(path, pipes)
     expand_map(new_map)
-    print_pipes(new_map)
+    extend_boundaries(new_map, start_idx)
+    fill_from_outside(new_map)
+    print(count_interior(new_map))
+    print_pipes(shrunk_map(new_map))
 
+def count_interior(pipes) -> int:
+    count = 0
+    for row in pipes[1::2]:
+        for element in row[1::2]:
+            if element == ".":
+                count+= 1
+    return count
+
+def fill_from_outside(pipes):
+    stack = [(0,0)]
+    while stack:
+        cur = stack.pop()
+        if not in_bounds(cur, pipes):
+            continue
+        row, col = cur
+        if pipes[row][col] != ".":
+            continue
+        pipes[row][col] = "O"
+
+        # print("".join(pipes[row]))
+        # time.sleep(0.005)
+        # print('\033c', end='')
+        
+        stack.extend([(row + 1, col), (row - 1, col), (row, col - 1), (row, col + 1)])
+
+def in_bounds(coordinate, array):
+    row, col = coordinate
+    return row >= 0 and row < len(array) and col >= 0 and col < len(array[0])
 
 def expand_map(pipes: List[List[int]]) -> List[List[int]]:
     len_col = len(pipes)
     len_row = len(pipes[0])
-    print(len_col, len_row)
     
     for i in range(len_col - 1, 0, -1):
         pipes.insert(i, ["."] * len_row)
 
-    for pipe in pipes:
+    for row in pipes:
         for i in range(len_row - 1, 0, -1):
-            pipe.insert(i, ".")
+            row.insert(i, ".")
 
+    # extend pipes in rows
+    for row in pipes:
+        for i in range(1, len(row), 2):
+            if row[i-1] in ["-", "F", "L"] and row[i+1] in ["-", "7", "J"]:
+                row[i] = "-"
     
+    # extend pipes in columns
+    for col in range(0, len(pipes[0]), 2):
+        for row in range(1, len(pipes), 2):
+            if pipes[row-1][col] in ["S", "|", "F", "7"] and pipes[row+1][col] in ["S", "|", "L", "J"]:
+                pipes[row][col] = "|"
 
-    # iterate through the new columns and add an "-" where pipes[i-1] is in ["-", "F", "L"] and pipes[i+1] is in ["-", "7", "J"]
+def shrunk_map(pipes: List[List[int]]) -> List[List[int]]:
+    return [[x for x in row[1::2]] for row in pipes[1::2]]
 
-    
 
 def extend_boundaries(pipes: list[list[str]], start_idx):
     for line in pipes:
         line.insert(0, ".")
         line.append(".")
-    pipes.insert(0, ["."] * (len(pipes[0]) + 2))
-    pipes.append(["."] * (len(pipes[0]) + 2))
+    pipes.insert(0, ["."] * (len(pipes[0])))
+    pipes.append(["."] * (len(pipes[0])))
     # shift start down and left by 1
     start_idx[0] += 1
     start_idx[1] += 1
